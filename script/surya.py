@@ -17,16 +17,26 @@ firebase_admin.initialize_app(cred, {
 
 OPENWEATHER_API_KEY=os.getenv("OPENWEATHER_API_KEY")
 
-location_ref = db.reference('location')  
+location_ref = db.reference("location")  
+def fetch_location_from_firebase():
+    try:
+        location_ref = db.reference("location")
+        location_data = location_ref.get()
+        print("fetched location data:", location_data)
+        if isinstance(location_data, str):
+            return location_data
+        raise ValueError("City not found")
+    except Exception as e:
+        print(f"Error fetching location from Firebase: {e}")
+        return None  
 
 while True:
     try:
-        location_data = location_ref.get()
-        if not location_data or "city" not in location_data:
-            print("Location missing")
+        city = fetch_location_from_firebase()
+        if not city:
+            print("Location missing or invalid.")
             time.sleep(25)
             continue
-        city=location_data["city"]
 
         geocode_response = requests.get(
             f"http://api.openweathermap.org/geo/1.0/direct?q={city}&limit=1&appid={OPENWEATHER_API_KEY}"
@@ -36,10 +46,11 @@ while True:
         if not geocode_data or len(geocode_data) == 0:
             print(f"Failed to fetch city cord: {city}")
             time.sleep(25)
+
             continue
-        
-        lat = location_data["latitude"]
-        lon = location_data["longitude"]
+
+        lat = geocode_data[0]["lat"]
+        lon = geocode_data[0]["long"]
         response =requests.get(
             f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_KEY}"
         )
@@ -54,7 +65,7 @@ while True:
         #weather data
         wind_speed=weather["wind"]["speed"] if "wind" in weather else None
         cloud_cover=weather["clouds"]["all"] if "clouds " in weather else None
-        weather_condistion=weather["weather"][0] ["description"]
+        weather_condition=weather["weather"][0] ["description"]
 
         now=pd.Timestamp.utcnow()
         solpos=pvlib.solarposition.get_solarposition( #sun position
@@ -80,6 +91,7 @@ while True:
         irradiance=poa_irradiance["poa_global"]
 
         print(f"[{now}]Elevation:{elevation:.2f}°,Azimuth:{azimuth:.2f}°,Wind Speed:{wind_speed} m/s, Cloud Cover:{cloud_cover}%, Irradiance:{irradiance:.2f} W/m²")
+        ref=db.reference("/sun_position")
         ref.set({
                 "timestamp":str(now),
                 "latitude":lat,

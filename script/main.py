@@ -4,14 +4,14 @@ import joblib
 import numpy as np
 from datetime import datetime
 
-cred = credentials.Certificate("scripts/surya-mukhi-firebase-adminsdk-35jq9-f3122bd9fb.json")  
+cred = credentials.Certificate(r"C:\pro\surya\script\surya-mukhi-firebase-adminsdk-35jq9-f3122bd9fb.json")  
 firebase_admin.initialize_app(cred, {
     "databaseURL": "https://surya-mukhi-default-rtdb.asia-southeast1.firebasedatabase.app"
 })
 
 #models
-model = joblib.load("scripts/trained_model.pkl")
-scaler = joblib.load("scripts/scaler.pkl")
+model = joblib.load(r"C:\pro\surya\model\trained_model.pkl")
+scaler = joblib.load(r"C:\pro\surya\model\scaler.pkl")
 
 weather_map = {
     "clear sky": [1, 0, 0],

@@ -43,14 +43,14 @@ def fetch_weather_data(city):
             "day": day
         }
     except Exception as e:
-        print(f"Error fetching data: {e}")
+        print(f"Error fetching weather data: {e}")
         return None
 
 def send_weather_data_to_firebase(weather_data1):
     try:
         weather_ref = db.reference("WeatherData1")
         weather_ref.push(weather_data1)
-        print("sent to firebase")
+        print("sent to Firebase")
     except Exception as e:
         print(f"Error sending : {e}")
 
