@@ -57,6 +57,8 @@ while True:
 
             ref.set({
                 "timestamp":str(now),
+                "latitude":lat,
+                "longitude":long,
                 "elevation":elevation,
                 "azimuth":azimuth,
                 "weather":weather["weather"][0]["description"]
